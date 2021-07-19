@@ -1,0 +1,86 @@
+---
+title: "Unsupervised Learning - Clustering"
+author: "Muhammad Apriandito"
+---
+
+# Set Model dan Parameter
+```{r}
+# Set Seed dan Parameter
+set.seed(1234)
+options(scipen = 10000)
+```
+
+# Install Package
+```{r}
+# Install Packages
+install.packages("factoextra")
+```
+
+# Load Package
+```{r}
+# Load package
+library(tidyverse) 
+library(cluster)
+library(factoextra)
+```
+
+# Import Data
+```{r}
+# Import data
+df <- read_csv2("data/income-spend.csv")
+```
+
+# Explorasi Data
+```{r}
+# Melihat Keseluruhan Data
+df
+```
+
+```{r}
+# Lihat Deskriptif Statistik
+summary(df)
+```
+
+```{r}
+# Visualisasi Dalam Scatter Plot
+df %>%
+  ggplot(aes(x = Income, y = Spending)) +
+  geom_point()
+```
+
+# Data Preprocessing
+```{r}
+# Select Data
+df_cluster <- df %>%
+  select(Income, Spending)
+
+head(df_cluster)
+```
+
+# Mencari Jumlah Cluster Optimal
+```{r}
+# Mencari nilai kluster optimal dengan elbow method
+fviz_nbclust(df_cluster, kmeans, method = "wss")
+```
+
+```{r}
+# Mencari nilai kluster optimal dengan silhouette method
+fviz_nbclust(df_cluster, kmeans, method = "silhouette")
+```
+
+# K-Means Clustering
+```{r}
+# Melakukan kmean clustering
+cluster <- kmeans(df_cluster, centers = 2)
+cluster
+```
+
+# Visualisasi Cluster
+```{r}
+# Visualisasi cluster
+fviz_cluster(cluster, 
+             data = df_cluster, 
+             geom = "point", 
+             stand = FALSE)
+```
+

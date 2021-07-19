@@ -1,0 +1,78 @@
+---
+title: "Unsupervised Learning - Association"
+author: "Muhammad Apriandito"
+---
+
+# Set Model dan Parameter
+```{r}
+# Set Seed dan Parameter
+set.seed(1234)
+options(scipen = 10000)
+```
+
+# Install Package
+```{r eval=FALSE, include= TRUE}
+# Install packages
+install.packages(c("arules", "arulesViz"))
+```
+
+# Load Package
+```{r message=FALSE, warning=FALSE}
+# Load packages
+library("tidyverse")
+library("arules")
+library("arulesViz")
+```
+
+# Load Data
+```{r}
+# Load data
+data(Groceries)
+```
+
+```{r}
+# See data information
+print(Groceries)
+```
+
+```{r}
+# Example of Item in Transaction
+inspect(head(Groceries, 5))
+```
+
+# Generate Frequent Itemset
+```{r}
+# Generate Frequent Itemset
+itemsets <- apriori(Groceries,
+  parameter = list(
+    maxlen = 1,
+    support = 0.001,
+    target = "frequent itemsets"
+  )
+)
+```
+
+```{r}
+# 5 Items with the highest support value
+inspect(head(sort(itemsets, by = "support"), 5))
+```
+
+# Generate Rules
+```{r}
+# Show
+rules <- apriori(Groceries,
+  parameter = list(
+    support = 0.001,
+    target = "rules"
+  )
+)
+```
+
+# Visualize Rules
+```{r message=FALSE, warning=FALSE}
+# Get 10 rules with the highest confidence value
+highconfidence <- head(sort(rules, by = "confidence"), 10)
+
+# Visualize rule
+plot(highconfidence, method = "graph")
+```

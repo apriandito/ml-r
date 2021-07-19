@@ -1,0 +1,140 @@
+---
+title: "Supervised Learning - Regresssion"
+author: "Muhammad Apriandito"
+---
+
+# Set Model dan Parameter
+```{r}
+# Set Seed dan Parameter
+set.seed(1234)
+options(scipen = 10000)
+```
+
+# Install package
+```{r}
+# Install package
+install.packages(c("tidyverse", 
+                   "tidymodels"))
+```
+
+# Load Package
+```{r}
+# Load package
+library(tidyverse)
+library(tidymodels)
+```
+
+# Load Data
+```{r}
+# Import Data
+df <- read_csv("data/salary.csv")
+```
+
+```{r}
+# Meampilkan 5 baris pertama data
+head(df)
+```
+
+```{r}
+# Menampilkan rangkuman data menggunakan fungsi glimpse()
+glimpse(df)
+```
+
+```{r}
+# Visualisasi Data
+df %>%
+  ggplot(aes(x = YearsExperience, y = Salary)) +
+  geom_point()
+```
+
+# Split Data
+```{r}
+# Membagi data dengan proporsi 70:30
+df_split <- initial_split(df, prop = 0.7)
+df_split
+```
+
+```{r}
+# Menampilkan data training
+df_split %>%
+  training() %>%
+  glimpse()
+```
+
+# Membuat Alur Pemrosesan Data
+```{r}
+# Membuat Recipe
+df_recipe <- training(df_split) %>%
+  recipe(Salary ~ YearsExperience) %>%
+  prep()
+
+df_recipe
+```
+
+```{r}
+# Mererapkan ke data training 
+df_training <- juice(df_recipe)
+glimpse(df_training)
+```
+
+```{r}
+# Menerapkan ke data testing
+df_testing <- df_recipe %>%
+  bake(testing(df_split)) 
+glimpse(df_testing)
+```
+
+# Menset Model
+```{r}
+# Menset model decision tree
+lr <-  linear_reg() %>% 
+  set_engine("lm") 
+```
+
+```{r}
+# Membuat Workflow
+workflow <- workflow() %>%
+  add_model(lr) %>%
+  add_recipe(df_recipe)
+```
+
+# Training
+```{r}
+# Training model linear regression
+model <- fit(workflow, training(df_split))
+```
+
+# Testing
+```{r}
+# Prediksi ke data testing
+model %>%
+  predict(testing(df_split)) %>% 
+  bind_cols(testing(df_split))
+```
+
+# Model Evaluation
+```{r}
+# Menentukan metrik evaluasi untuk mengukur performa model
+multi_metrics <- metric_set(rmse, mape, rsq)
+```
+
+```{r}
+# Melihat performa model decision tree
+model %>%
+  predict(testing(df_split)) %>%
+  bind_cols(testing(df_split)) %>%
+  multi_metrics(truth = Salary, estimate = .pred)
+```
+
+# Prediksi ke Data Baru
+```{r}
+# Membuat Data 
+df_new <- tibble(YearsExperience = 4)
+```
+
+```{r}
+# Melakukan Prediksi
+model %>%
+  predict(df_new)
+```
+
